@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  # ============================================================
+  # Backend FastAPI Service
+  # ============================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: apk-shield-backend
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=sqlite:///./apk_analysis.db
+      - AI_PROVIDER=${AI_PROVIDER:-gemini}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - SECRET_KEY=${SECRET_KEY:-apk-malware-platform-dev-key-2024}
+    volumes:
+      - apk_uploads:/app/uploads
+      - apk_db:/app
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - apk-network
+
+  # ============================================================
+  # Frontend React + Nginx Service
+  # ============================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: apk-shield-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - apk-network
+
+# ============================================================
+# Volumes
+# ============================================================
+volumes:
+  apk_uploads:
+    driver: local
+  apk_db:
+    driver: local
+
+# ============================================================
+# Networks
+# ============================================================
+networks:
+  apk-network:
+    driver: bridge
