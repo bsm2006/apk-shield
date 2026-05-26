@@ -17,11 +17,12 @@ RUN npm run build
 FROM nginx:alpine
 
 COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Copy nginx config as a template for automatic envsubst replacement at startup
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+
+# Default port env var in case it is not provided
+ENV PORT=80
 EXPOSE 80
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=3s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
