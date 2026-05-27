@@ -25,7 +25,7 @@ async def get_json_report(analysis_id: int, db: Session = Depends(get_db)):
     report = {
         "report_metadata": {
             "report_id": f"APK-{analysis_id:06d}",
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.utcnow().isoformat() + "Z",
             "platform": "APK Malware Analysis Platform v1.0",
         },
         "application_info": {
@@ -82,7 +82,7 @@ async def get_json_report(analysis_id: int, db: Session = Depends(get_db)):
             "immediate_block": analysis.risk_level == "BLOCK",
         },
         "analysis_metadata": {
-            "analyzed_at": analysis.created_at.isoformat() if analysis.created_at else None,
+            "analyzed_at": (analysis.created_at.isoformat() + "Z") if analysis.created_at else None,
             "status": analysis.status,
         }
     }
@@ -107,5 +107,5 @@ async def get_analysis_summary(analysis_id: int, db: Session = Depends(get_db)):
         "dangerous_permissions_count": len(analysis.dangerous_permissions or []),
         "obfuscation_detected": analysis.obfuscation_detected,
         "verdict": analysis.risk_level,
-        "analyzed_at": analysis.created_at.isoformat() if analysis.created_at else None,
+        "analyzed_at": (analysis.created_at.isoformat() + "Z") if analysis.created_at else None,
     }

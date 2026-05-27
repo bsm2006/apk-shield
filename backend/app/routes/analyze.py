@@ -194,7 +194,7 @@ async def analyze_uploaded_apk(
         "obfuscation_score": analysis.obfuscation_score,
         "behavior_score": analysis.behavior_score,
         "status": analysis.status,
-        "created_at": analysis.created_at.isoformat() if analysis.created_at else None,
+        "created_at": (analysis.created_at.isoformat() + "Z") if analysis.created_at else None,
     }
 
 
@@ -234,5 +234,5 @@ async def get_analysis(analysis_id: int, db: Session = Depends(get_db)):
         "obfuscation_score": analysis.obfuscation_score,
         "behavior_score": analysis.behavior_score,
         "status": analysis.status,
-        "created_at": analysis.created_at.isoformat() if analysis.created_at else None,
+        "created_at": (analysis.created_at.isoformat() + "Z") if analysis.created_at else None,
     }

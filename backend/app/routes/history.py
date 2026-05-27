@@ -60,7 +60,7 @@ async def get_history(
                 "obfuscation_detected": a.obfuscation_detected,
                 "dangerous_permissions_count": len(a.dangerous_permissions or []),
                 "status": a.status,
-                "created_at": a.created_at.isoformat() if a.created_at else None,
+                "created_at": (a.created_at.isoformat() + "Z") if a.created_at else None,
             }
             for a in analyses
         ],
@@ -126,7 +126,7 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
                 "package_name": a.package_name,
                 "risk_score": a.risk_score,
                 "risk_level": a.risk_level,
-                "created_at": a.created_at.isoformat() if a.created_at else None,
+                "created_at": (a.created_at.isoformat() + "Z") if a.created_at else None,
             }
             for a in recent_high
         ],
