@@ -17,8 +17,8 @@ _raw_origins = os.getenv(
     "http://localhost:3000,http://localhost:5173,http://localhost:80"
 )
 ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
-# Also allow all Railway .up.railway.app subdomains
-ALLOW_ALL = os.getenv("CORS_ALLOW_ALL", "true").lower() == "true"
+# When CORS_ALLOW_ALL=true (set by Railway deploy script), use wildcard
+ALLOW_ALL = os.getenv("CORS_ALLOW_ALL", "false").lower() == "true"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,11 +40,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS
+# CORS — use wildcard when CORS_ALLOW_ALL=true (Railway), otherwise restrict to ALLOWED_ORIGINS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"] if ALLOW_ALL else ALLOWED_ORIGINS,
+    allow_credentials=False,  # Must be False when allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )

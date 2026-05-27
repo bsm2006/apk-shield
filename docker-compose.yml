@@ -16,6 +16,8 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - SECRET_KEY=${SECRET_KEY:-apk-malware-platform-dev-key-2024}
+      - CORS_ALLOW_ALL=true
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://frontend:80
     volumes:
       - apk_uploads:/app/uploads
       - apk_db:/app
@@ -37,8 +39,18 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # When VITE_API_URL is NOT set, the frontend falls back to relative /api
+        # which nginx then proxies to the backend container.
+        # You can also override: VITE_API_URL=https://your-backend.up.railway.app docker-compose up
+        - VITE_API_URL=${VITE_API_URL:-}
     container_name: apk-shield-frontend
     restart: unless-stopped
+    environment:
+      # nginx template substitution — port and upstream backend host
+      - PORT=80
+      - BACKEND_HOST=backend
+      - BACKEND_PORT=8000
     ports:
       - "3000:80"
     depends_on:
