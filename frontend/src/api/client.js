@@ -1,11 +1,20 @@
 import axios from 'axios'
 
-// In production (Railway), VITE_API_URL is set to the backend Railway URL
-// In Docker Compose, requests go through nginx proxy at /api
-// In local dev, Vite proxy forwards /api to localhost:8000
-const API_BASE = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : '/api'
+const getApiBase = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return `${import.meta.env.VITE_API_URL}/api`
+  }
+  
+  // Auto-detect environment if no explicit env var is set
+  const isLocal = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || 
+     window.location.hostname === '127.0.0.1' || 
+     window.location.hostname.startsWith('192.168.'));
+     
+  return isLocal ? '/api' : 'https://apk-shield-production.up.railway.app/api'
+}
+
+const API_BASE = getApiBase()
 
 const api = axios.create({
   baseURL: API_BASE,
