@@ -14,8 +14,8 @@ scikit-learn==1.4.2
 numpy==1.26.4
 pandas==2.2.2
 
-# APK Analysis (optional - system falls back to simulation if unavailable)
-# androguard==3.3.5
+# APK Analysis
+androguard==3.3.5
 
 # AI APIs (optional - system uses template fallback if keys not set)
 openai==1.30.0
