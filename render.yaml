@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: apk-shield-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:////app/data/apk_analysis.db
+      - key: AI_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CORS_ALLOW_ALL
+        value: "true"
+
+    disk:
+      name: apk-shield-data
+      mountPath: /app/data
+      sizeGB: 1
+
+    healthCheckPath: /health

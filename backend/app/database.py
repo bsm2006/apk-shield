@@ -1,9 +1,12 @@
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./apk_analysis.db")
+# On Render, /app/data is a persistent disk mount — store DB there
+_default_db = (
+    "sqlite:////app/data/apk_analysis.db"
+    if os.path.isdir("/app/data")
+    else "sqlite:///./apk_analysis.db"
+)
+DATABASE_URL = os.getenv("DATABASE_URL", _default_db)
 
 # Handle PostgreSQL URL scheme for SQLAlchemy
 if DATABASE_URL.startswith("postgres://"):
