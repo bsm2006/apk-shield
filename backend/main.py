@@ -24,10 +24,21 @@ ALLOW_ALL = os.getenv("CORS_ALLOW_ALL", "false").lower() == "true"
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting APK Malware Analysis Platform...")
+    # On Render, /app/data is a persistent disk — use it for uploads so files
+    # survive redeploys. Falls back to local dirs in all other environments.
+    data_dir = "/app/data" if os.path.isdir("/app/data") else "."
+    uploads_dir = os.path.join(data_dir, "uploads")
+    reports_dir = os.path.join(data_dir, "reports")
+    os.makedirs(uploads_dir, exist_ok=True)
+    os.makedirs(reports_dir, exist_ok=True)
+    # Symlink so app code always finds ./uploads and ./reports
+    for name, target in [("uploads", uploads_dir), ("reports", reports_dir)]:
+        local = os.path.join("/app", name)
+        if not os.path.exists(local):
+            os.symlink(target, local)
     Base.metadata.create_all(bind=engine)
     logger.info("Database tables created.")
-    os.makedirs("uploads", exist_ok=True)
-    os.makedirs("reports", exist_ok=True)
+    logger.info(f"Upload directory: {uploads_dir}")
     yield
     # Shutdown
     logger.info("Shutting down...")

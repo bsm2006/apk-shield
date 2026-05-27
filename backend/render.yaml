@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: apk-shield-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///./apk_analysis.db
+      - key: AI_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false          # Set this manually in Render dashboard
+      - key: SECRET_KEY
+        generateValue: true  # Render auto-generates a secure random value
+      - key: CORS_ALLOW_ALL
+        value: "true"
+      - key: PORT
+        value: "8000"
+
+    # Persistent disk so uploads + SQLite DB survive redeploys
+    disk:
+      name: apk-shield-data
+      mountPath: /app/data
+      sizeGB: 1
+
+    healthCheckPath: /health
