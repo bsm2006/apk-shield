@@ -32,10 +32,14 @@ async def lifespan(app: FastAPI):
     os.makedirs(uploads_dir, exist_ok=True)
     os.makedirs(reports_dir, exist_ok=True)
     # Symlink so app code always finds ./uploads and ./reports
-    for name, target in [("uploads", uploads_dir), ("reports", reports_dir)]:
-        local = os.path.join("/app", name)
-        if not os.path.exists(local):
-            os.symlink(target, local)
+    if os.path.isdir("/app"):
+        for name, target in [("uploads", uploads_dir), ("reports", reports_dir)]:
+            local = os.path.join("/app", name)
+            if not os.path.exists(local):
+                try:
+                    os.symlink(target, local)
+                except Exception as e:
+                    logger.warning(f"Failed to create symlink {local} -> {target}: {e}")
     Base.metadata.create_all(bind=engine)
     logger.info("Database tables created.")
     logger.info(f"Upload directory: {uploads_dir}")

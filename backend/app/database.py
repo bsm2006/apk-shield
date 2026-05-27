@@ -1,4 +1,7 @@
 import os
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 # On Render, /app/data is a persistent disk mount — store DB there
 _default_db = (
